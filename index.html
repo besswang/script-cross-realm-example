@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模拟360搜索</title>
+    <style>
+body{padding:0;margin:0;overflow:hidden;}
+        ul,li{margin:0;padding:0;}
+        ul{border:1px solid #ccc;border-top:0;width:522px;margin-left:-110px;}
+        li{list-style:none;padding:5px;text-align:left;text-indent:10px;cursor:pointer;}
+        .main{
+             /* 100vh = viewport height*/
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+        }
+        .skin-search-input{
+            width:500px;
+            background: #fff;
+            height: 34px;
+            padding: 4px 10px 4px 12px;
+            vertical-align: top;
+            border: 1px solid #ccc;
+        }
+        .keyword{
+            background: #fff;
+            border: none;
+            color: #333;
+            font-size: 16px;
+            height: 30px;
+            line-height: 30px\9;
+            margin-top: 3px;
+            outline: none;
+            width:100%;
+        }
+        input[type=button]{
+                               -webkit-appearance: none;
+                               border: 0;
+                               cursor: pointer;
+                               font-size: 18px;
+                               height: 44px;
+                               outline: none;
+                               vertical-align: top;
+                               width: 110px;
+                               background: #19b955;
+                               color: #fff;
+                           }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+</head>
+<body>
+
+    <div class="main">
+        <div class="skin-search-input">
+            <input type="text" class="keyword">
+        </div>
+        <input type="button" value="搜一下">
+    </div>
+    <div align="center" class="message" style="display:none;">
+        <ul>
+        </ul>
+    </div>
+
+<script>
+    //如果页面加载直接给li元素绑定事件，你是获取不到li元素的。
+    //解决方案，可以用jq给我们提供的事件委托
+    $(".message>ul").on("mouseover","li",function () {
+        this.style.background = "#efefef";
+    });
+    $(".message>ul").on("mouseout","li",function () {
+        this.style.background = "white";
+    });
+
+    function getInfo(data) {//回调函数
+//解析数据，然后把message里面的ul里面的li元素的数据替换
+        var results = data.result;
+        var i;
+        document.querySelector(".message>ul").innerHTML = "";
+        for(i=0;i<results.length;i++){
+            var li = document.createElement("li");
+            li.innerHTML = results[i].word;
+            console.log(li);
+            document.querySelector(".message>ul").appendChild(li);
+        }
+    }
+
+    //添加键盘事件
+    document.querySelector(".keyword").onkeyup = function () {
+        var keyword = this.value;
+
+        //如果在输入的时候有空格的话，这里需要做判断
+        if(keyword.length>0){
+            //我根据这个关键字去获取数据，获取到数据之后
+            //加载到列表里
+            //显示
+            document.querySelector(".message").style.display = "block";
+            //把关键字给360的这个搜索接口，让它来给我结果
+
+            //使用script标签去发送请求
+            var tag = document.createElement("script");
+            tag.src = "https://sug.so.360.cn/suggest?callback=getInfo&encodein=utf-8&encodeout=utf-8&format=json&fields=word,obdata&word="+keyword;
+            document.body.appendChild(tag);
+        }else{
+            document.querySelector(".message").style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>
